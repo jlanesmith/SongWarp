@@ -1,13 +1,12 @@
 const http = require('http');
 
 function addSong(songs, newSong, previousFlag) {
-	let numSongs = songs.length;
-	for (song in songs) {
-		if ( (song.name == newSong.name) && (song.artist = newSong.artist) ) {
-			if (previousFlag) {
-				song.previousTotal++;
+	for (var i = 0; i < songs.length; i++) {
+		if ( (songs[i].name == newSong.name) && (songs[i].artist['#text'] == newSong.artist['#text']) ) {
+			if (previousFlag == true) {
+				songs[i].previousTotal += parseInt(newSong.playcount, 10);
 			} else {
-				song.currentTotal++;
+				songs[i].currentTotal += parseInt(newSong.playcount, 10);
 			}
 			return songs;
 		}
@@ -25,7 +24,7 @@ function dateToTS(dateText) {
 	return Math.round(date.getTime()/1000);
 }
 
-function getDates(username, startDate, endDate) {
+function getDates(startDate, endDate, callback) {
 
 	var dates = [];
 	http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklychartlist&user='+ username +
@@ -35,46 +34,60 @@ function getDates(username, startDate, endDate) {
 	    data += chunk;
 	  });
 	  resp.on('end', () => {
-	  	for (chart in JSON.parse(data).weeklychartlist.chart.length) {
-	  		if ((chart.from > startDate) && (chart.to < endDate)) {
-	  			dates.push(new Array(chart.from, chart.to));
+	  	let list = JSON.parse(data).weeklychartlist;
+	  	for (var i = 0; i < list.chart.length; i++) {
+	  		if ((list.chart[i].from > startDate) && (list.chart[i].to < endDate)) {
+	  			dates.push(new Array(list.chart[i].from, list.chart[i].to));
 	  		}
 	  	}
-	  	return dates;
+	  	callback(dates);
 	  }); 
 	}).on("error", (err) => {
 	  console.log("Error: " + err.message);
 	});
 }
 
-function getNumSongs(username, startDate, endDate) {
+function getSongs(dateNumber, previousFlag, callback) {
+
+	var start;
+	var end;
+	let progress = dateNumber + 1 + (previousFlag ? 0 : previousDates.length);
+	console.log("Progress: " + progress + " of " + (previousDates.length + currentDates.length));
+
+	if (previousFlag == true) {
+		start = previousDates[dateNumber][0];
+		end = previousDates[dateNumber][1];
+	} else {
+		start = currentDates[dateNumber][0];
+		end = currentDates[dateNumber][1];
+	}
 
 	http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
-		'&from=' + startDate + '&to=' + endDate + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+		'&from=' + start + '&to=' + end + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
 	  let data = '';
 	  resp.on('data', (chunk) => {
 	    data += chunk;
 	  });
 	  resp.on('end', () => {
-	  	return JSON.parse(data).weeklytrackchart.track.length;
-	  }); 
-	}).on("error", (err) => {
-	  console.log("Error: " + err.message);
-	});
-}
+	  	var chart = JSON.parse(data).weeklytrackchart;
+	  	for (var i = 0; i < chart.track.length; i++) {
+	  		var song = chart.track[i];
+	  		song["previousTotal"] = 0;
+	  		song["currentTotal"] = 0;
+	  		songs = addSong(songs, song, previousFlag);
+	  	}
+	  	var datesToCompare;
+	  	if (previousFlag == true) {
+	  		datesToCompare = previousDates;
+	  	} else {
+	  		datesToCompare = currentDates;
+	  	}
+	  	if (dateNumber + 1 == datesToCompare.length) {
+	  		callback();
+	  	} else {
+	  		getSongs(dateNumber + 1, previousFlag, callback);
+	  	}
 
-function getSong(username, startDate, endDate, number) {
-	http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
-		'&from=' + startDate + '&to=' + endDate + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
-	  let data = '';
-	  resp.on('data', (chunk) => {
-	    data += chunk;
-	  });
-	  resp.on('end', () => {
-	  	var song = JSON.parse(data).weeklytrackchart.track[number];
-	  	song["previousTotal"] = 0;
-	  	song["currentTotal"] = 0;
-	  	return song;
 	  }); 
 	}).on("error", (err) => {
 	  console.log("Error: " + err.message);
@@ -105,13 +118,45 @@ rl.question('Enter your username:', (username1) => {
         			previousLimit=previousLimit1;
         			currentLimit=currentLimit1;
         			rl.close();
-        			calculate();
+        			calculateDates();
         		});
         	});
         });
     });
 });
 
-function calculate() {
+var previousDates = [];
+var currentDates = [];
+var songs = [];
+var results = [];
+
+function calculateDates() {
 	
+	getDates(startDate, endDate, function(previousDates1){
+		getDates(endDate, new Date(), function(currentDates1){
+			previousDates = previousDates1;
+			currentDates = currentDates1;
+			getSongs(0, true, function() {
+				getSongs(0, false, function() {
+					outputResults();
+				})
+			});
+		});
+	});
+}
+
+function outputResults() {
+
+
+	for (var i = 0; i < songs.length; i++) {
+		if ( (songs[i].previousTotal >= previousLimit) && (songs[i].currentTotal <= currentLimit)) {
+			results.push(songs[i]);
+		}
+	}
+
+	console.log("\nResults:");
+	results = sortBySongPreviousTotal(results);
+	for (var i = 0; i < results.length; i++) {
+		console.log("Song title: " + results[i].name + ", Artist: " + results[i].artist['#text']);
+	}
 }
