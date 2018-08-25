@@ -1,14 +1,9 @@
-function Song() {
-	this.songTitle = "Title";
-	this.artist = "Artist";
-	this.previousTotal = 0;
-	this.currentTotal = 0;
-}
+const http = require('http');
 
 function addSong(songs, newSong, previousFlag) {
 	let numSongs = songs.length;
 	for (song in songs) {
-		if ( (song.songTitle == newSong.songTitle) && (song.artist = newSong.artist) ) {
+		if ( (song.name == newSong.name) && (song.artist = newSong.artist) ) {
 			if (previousFlag) {
 				song.previousTotal++;
 			} else {
@@ -23,6 +18,67 @@ function addSong(songs, newSong, previousFlag) {
 
 function sortBySongPreviousTotal(songs) {
 	return songs.sort(function(a,b){return b.previousTotal - a.previousTotal});
+}
+
+function dateToTS(dateText) {
+	var date = new Date(dateText);
+	return Math.round(date.getTime()/1000);
+}
+
+function getDates(username, startDate, endDate) {
+
+	var dates = [];
+	http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklychartlist&user='+ username +
+		'&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+	  let data = '';
+	  resp.on('data', (chunk) => {
+	    data += chunk;
+	  });
+	  resp.on('end', () => {
+	  	for (chart in JSON.parse(data).weeklychartlist.chart.length) {
+	  		if ((chart.from > startDate) && (chart.to < endDate)) {
+	  			dates.push(new Array(chart.from, chart.to));
+	  		}
+	  	}
+	  	return dates;
+	  }); 
+	}).on("error", (err) => {
+	  console.log("Error: " + err.message);
+	});
+}
+
+function getNumSongs(username, startDate, endDate) {
+
+	http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
+		'&from=' + startDate + '&to=' + endDate + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+	  let data = '';
+	  resp.on('data', (chunk) => {
+	    data += chunk;
+	  });
+	  resp.on('end', () => {
+	  	return JSON.parse(data).weeklytrackchart.track.length;
+	  }); 
+	}).on("error", (err) => {
+	  console.log("Error: " + err.message);
+	});
+}
+
+function getSong(username, startDate, endDate, number) {
+	http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
+		'&from=' + startDate + '&to=' + endDate + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+	  let data = '';
+	  resp.on('data', (chunk) => {
+	    data += chunk;
+	  });
+	  resp.on('end', () => {
+	  	var song = JSON.parse(data).weeklytrackchart.track[number];
+	  	song["previousTotal"] = 0;
+	  	song["currentTotal"] = 0;
+	  	return song;
+	  }); 
+	}).on("error", (err) => {
+	  console.log("Error: " + err.message);
+	});
 }
 
 var username;
@@ -41,46 +97,21 @@ const rl = readline.createInterface({
 rl.question('Enter your username:', (username1) => {
     rl.question('Enter a start date in the form 2018-12-25:', (startDate1) => {
     	rl.question('Enter an end date in the form 2018-12-25:', (endDate1) => {
-    		rl.question('Enter a previous limit', (previousLimit1) => {
-    			rl.question('Enter a current limit', (currentLimit1) => {
+    		rl.question('Enter a previous limit:', (previousLimit1) => {
+    			rl.question('Enter a current limit:', (currentLimit1) => {
         			username=username1;
         			startDate=dateToTS(startDate1);
         			endDate=dateToTS(endDate1);
         			previousLimit=previousLimit1;
         			currentLimit=currentLimit1;
         			rl.close();
+        			calculate();
         		});
         	});
         });
     });
 });
 
-function dateToTS(dateText) {
-	var date = new Date(dateText);
-	return Math.round(date.getTime()/1000);
-}
-
 function calculate() {
-
-	// const http = require('http');
-	// http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
-	// 	'&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {//'
-	//   let data = '';
-
-	//   // A chunk of data has been recieved.
-	//   resp.on('data', (chunk) => {
-	//     data += chunk;
-	//   });
-
-	//   // The whole response has been received. Print out the result.
-	//   resp.on('end', () => {
-
-	//     console.log(data);
-	// 	// console.log(JSON.parse(data).toptracks.track[1].name);
-		
-	//   }); 
-
-	// }).on("error", (err) => {
-	//   console.log("Error: " + err.message);
-	// });
+	
 }
