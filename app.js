@@ -44,18 +44,21 @@ rl.question('Enter your username:', (username1) => {
     		rl.question('Enter a previous limit', (previousLimit1) => {
     			rl.question('Enter a current limit', (currentLimit1) => {
         			username=username1;
-        			startDate=startDate1;
-        			endDate=endDate1;
+        			startDate=dateToTS(startDate1);
+        			endDate=dateToTS(endDate1);
         			previousLimit=previousLimit1;
         			currentLimit=currentLimit1;
         			rl.close();
-        			console.log("yee");
         		});
         	});
         });
     });
 });
 
+function dateToTS(dateText) {
+	var date = new Date(dateText);
+	return Math.round(date.getTime()/1000);
+}
 
 function calculate() {
 
