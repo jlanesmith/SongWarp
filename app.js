@@ -81,4 +81,3 @@ function calculate() {
 	//   console.log("Error: " + err.message);
 	// });
 }
-
