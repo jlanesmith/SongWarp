@@ -3,7 +3,7 @@ const http = require('http');
 function addSong(songs, newSong, previousFlag) {
 	for (var i = 0; i < songs.length; i++) {
 		if ( (songs[i].name == newSong.name) && (songs[i].artist['#text'] == newSong.artist['#text']) ) {
-			if (previousFlag == true) {
+			if (previousFlag) {
 				songs[i].previousTotal += parseInt(newSong.playcount, 10);
 			} else {
 				songs[i].currentTotal += parseInt(newSong.playcount, 10);
@@ -54,7 +54,7 @@ function getSongs(dateNumber, previousFlag, callback) {
 	let progress = dateNumber + 1 + (previousFlag ? 0 : previousDates.length);
 	console.log("Progress: " + progress + " of " + (previousDates.length + currentDates.length));
 
-	if (previousFlag == true) {
+	if (previousFlag) {
 		start = previousDates[dateNumber][0];
 		end = previousDates[dateNumber][1];
 	} else {
@@ -77,7 +77,7 @@ function getSongs(dateNumber, previousFlag, callback) {
 	  		songs = addSong(songs, song, previousFlag);
 	  	}
 	  	var datesToCompare;
-	  	if (previousFlag == true) {
+	  	if (previousFlag) {
 	  		datesToCompare = previousDates;
 	  	} else {
 	  		datesToCompare = currentDates;
@@ -107,11 +107,15 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
-rl.question('Enter your username:', (username1) => {
-    rl.question('Enter a start date in the form 2018-12-25:', (startDate1) => {
-    	rl.question('Enter an end date in the form 2018-12-25:', (endDate1) => {
-    		rl.question('Enter a previous limit:', (previousLimit1) => {
-    			rl.question('Enter a current limit:', (currentLimit1) => {
+console.log("\nWelcome to SongRediscoverer! This app finds songs that you listened to at " + 
+	"least a given number of times during a given time period, but have listened to no more " +
+	 "than a given number of times since that time period to the present. These values will be provided by you.");
+
+rl.question('\nEnter your username:', (username1) => {
+    rl.question('Enter a start date for the time period in the form 2018-12-25:', (startDate1) => {
+    	rl.question('Enter an end date for the time period in the form 2018-12-25:', (endDate1) => {
+    		rl.question('Enter a previous limit (The minimum for how many times you listened to this song during the time period):', (previousLimit1) => {
+    			rl.question('Enter a current limit (The maximum for how many times you listened to this song since the time period):', (currentLimit1) => {
         			username=username1;
         			startDate=dateToTS(startDate1);
         			endDate=dateToTS(endDate1);
@@ -136,17 +140,24 @@ function calculateDates() {
 		getDates(endDate, new Date(), function(currentDates1){
 			previousDates = previousDates1;
 			currentDates = currentDates1;
-			getSongs(0, true, function() {
-				getSongs(0, false, function() {
-					outputResults();
-				})
-			});
+			if (previousDates.length > 0) {
+				getSongs(0, true, function() {
+					if (currentDates.length > 0) {
+						getSongs(0, false, function() {
+							outputResults();
+						})
+					} else {
+						outputResults();
+					}
+				});
+			} else {
+				outputResults();
+			}
 		});
 	});
 }
 
 function outputResults() {
-
 
 	for (var i = 0; i < songs.length; i++) {
 		if ( (songs[i].previousTotal >= previousLimit) && (songs[i].currentTotal <= currentLimit)) {
@@ -154,9 +165,14 @@ function outputResults() {
 		}
 	}
 
-	console.log("\nResults:");
-	results = sortBySongPreviousTotal(results);
-	for (var i = 0; i < results.length; i++) {
-		console.log("Song title: " + results[i].name + ", Artist: " + results[i].artist['#text']);
+	if (results.length == 0) {
+		console.log("\nThere are no results with the parameters given. Sorry!");
+	} else {
+		console.log("\nResults:");
+		results = sortBySongPreviousTotal(results);
+		for (var i = 0; i < results.length; i++) {
+			console.log( (i+1) + ". Song title: " + results[i].name + ", Artist: " + results[i].artist['#text'] + 
+				"\n        Times listened during time period: " + results[i].previousTotal + ", Times listened after time period: " + results[i].currentTotal);
+		}
 	}
 }
