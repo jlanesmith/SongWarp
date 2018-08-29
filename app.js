@@ -175,7 +175,9 @@ function outputResults() {
 	}
 	results = sortBySongPreviousTotal(results);
 	var resultText = [];
-	var info = "Parameters: " + username + ", " + startDateText + ", " + endDateText + ", " + previousLimit + ", " + currentLimit
+	var info = "Parameters: " + username + ", " + startDateText + ", " + endDateText + ", " + previousLimit + ", " + currentLimit;
+	console.log(info);
+	console.log("Results: " + results.length);
 	for (var i = 0; i < results.length; i++) {	
 		resultText[i] = new Array(results[i].name, results[i].artist['#text'], results[i].previousTotal, results[i].currentTotal);
 	}
