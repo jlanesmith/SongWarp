@@ -1,4 +1,51 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const request = require('request');
+const app = express()
 const http = require('http');
+
+app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.set('view engine', 'ejs')
+
+app.get('/', function (req, res) {
+  res.render('index', {info: null, results: null, error: null});
+})
+
+var responder;
+
+var username;
+var startDate;
+var startDateText;
+var endDate;
+var endDateText;
+var previousLimit;
+var currentLimit;
+
+var previousDates = [];
+var currentDates = [];
+var songs = [];
+var results = [];
+
+function getPost() {
+  app.post('/', function (req, res) {
+	  responder = res;
+	  username = req.body.username;
+	  startDateText = req.body.startDate
+	  startDate = dateToTS(startDateText);
+	  endDateText = req.body.endDate
+	  endDate = dateToTS(endDateText);
+	  previousLimit = req.body.previousLimit;
+	  currentLimit = req.body.currentLimit;
+	  calculateDates();
+	})
+}
+
+getPost();
+
+app.listen(3000, function () {
+  console.log('Example app listening on port 3000!')
+})
 
 function addSong(songs, newSong, previousFlag) {
 	for (var i = 0; i < songs.length; i++) {
@@ -52,7 +99,8 @@ function getSongs(dateNumber, previousFlag, callback) {
 	var start;
 	var end;
 	let progress = dateNumber + 1 + (previousFlag ? 0 : previousDates.length);
-	console.log("Progress: " + progress + " of " + (previousDates.length + currentDates.length));
+	var percentDone = progress / (previousDates.length + currentDates.length);
+	console.log("Progress: " + progress + " of " + (previousDates.length + currentDates.length) );
 
 	if (previousFlag) {
 		start = previousDates[dateNumber][0];
@@ -94,46 +142,6 @@ function getSongs(dateNumber, previousFlag, callback) {
 	});
 }
 
-var username;
-var startDate;
-var endDate;
-var previousLimit;
-var currentLimit;
-
-const readline = require('readline');
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-console.log("\nWelcome to SongRediscoverer! This app finds songs that you listened to at " + 
-	"least a given number of times during a given time period, but have listened to no more " +
-	 "than a given number of times since that time period to the present. These values will be provided by you.");
-
-rl.question('\nEnter your username:', (username1) => {
-    rl.question('Enter a start date for the time period in the form 2018-12-25:', (startDate1) => {
-    	rl.question('Enter an end date for the time period in the form 2018-12-25:', (endDate1) => {
-    		rl.question('Enter a previous limit (The minimum for how many times you listened to this song during the time period):', (previousLimit1) => {
-    			rl.question('Enter a current limit (The maximum for how many times you listened to this song since the time period):', (currentLimit1) => {
-        			username=username1;
-        			startDate=dateToTS(startDate1);
-        			endDate=dateToTS(endDate1);
-        			previousLimit=previousLimit1;
-        			currentLimit=currentLimit1;
-        			rl.close();
-        			calculateDates();
-        		});
-        	});
-        });
-    });
-});
-
-var previousDates = [];
-var currentDates = [];
-var songs = [];
-var results = [];
-
 function calculateDates() {
 	
 	getDates(startDate, endDate, function(previousDates1){
@@ -161,18 +169,16 @@ function outputResults() {
 
 	for (var i = 0; i < songs.length; i++) {
 		if ( (songs[i].previousTotal >= previousLimit) && (songs[i].currentTotal <= currentLimit)) {
+			songs[i]["artistText"] = songs[i].artist['#text'];
 			results.push(songs[i]);
 		}
 	}
-
-	if (results.length == 0) {
-		console.log("\nThere are no results with the parameters given. Sorry!");
-	} else {
-		console.log("\nResults:");
-		results = sortBySongPreviousTotal(results);
-		for (var i = 0; i < results.length; i++) {
-			console.log( (i+1) + ". Song title: " + results[i].name + ", Artist: " + results[i].artist['#text'] + 
-				"\n        Times listened during time period: " + results[i].previousTotal + ", Times listened after time period: " + results[i].currentTotal);
-		}
+	results = sortBySongPreviousTotal(results);
+	var resultText = [];
+	var info = "Parameters: " + username + ", " + startDateText + ", " + endDateText + ", " + previousLimit + ", " + currentLimit
+	for (var i = 0; i < results.length; i++) {	
+		resultText[i] = new Array(results[i].name, results[i].artist['#text'], results[i].previousTotal, results[i].currentTotal);
 	}
+	responder.render('index', {info: info, results: resultText, error: null});
+	getPost();
 }
