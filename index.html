@@ -1,1 +1,43 @@
-Hello World
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SongDiscoverer</title>
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+    <div class="container">
+      <fieldset>
+        <header>
+          <h1> Welcome to SongRediscoverer! </h1>
+          <h3> This app finds songs that you listened to at least a given number of times during a given time period, but have listened to no more than a given number of times since that time period to the present. </h3>
+        </header>
+        <form action="/" method="post">
+          <input name="username" type="text" class="ghost-input" placeholder="Enter your Last.fm username" required>
+          <input name="startDate" type="text" class="ghost-input" placeholder="Enter a start date for the time period in the form 2018-12-25" required>
+          <input name="endDate" type="text" class="ghost-input" placeholder="Enter an end date for the time period in the form 2018-12-25" required>
+          <input name="previousLimit" type="text" class="ghost-input" placeholder="Enter a previous limit (The minimum for how many times you listened to this song during the time period)" required>
+          <input name="currentLimit" type="text" class="ghost-input" placeholder="Enter a current limit (The maximum for how many times you listened to this song since the time period)" required>
+          <input type="submit" class="ghost-button" value="Get Songs">
+        </form>
+        	<% if(error !== null){ %>
+            	<h2><%= error %></h2>
+          	<% } else if (results !== null){ %>
+            	<% if(results.length == 0){ %>
+            		<h2><%= "There are no results with the parameters given. Sorry!" %></h2>
+          		<% } else { %>
+					<h1><%= "Results:" %></h1>
+					<h2><%= info %></h2>
+	        		<% for (var i = 0; i < results.length; i++) {%>
+	           			<h3> <%= (i+1) + ". \"" + results[i][0] + "\" by " + results[i][1] %></h3>
+	           			<h4> <%= "Times listened during time period: " + results[i][2] + ", Times listened after time period: " + results[i][3] %></h4>
+	        		<% } %>
+ 		  		<% } %>
+ 		  	<% } else if (info !== null){ %>
+ 		  		<h1><%= info %></h1>
+ 		  	<% } %>
+      </fieldset>
+    </div>
+  </body>
+</html>
