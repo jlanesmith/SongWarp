@@ -43,9 +43,7 @@ function getPost() {
 
 getPost();
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!')
-})
+app.listen(process.env.PORT);
 
 function addSong(songs, newSong, previousFlag) {
 	for (var i = 0; i < songs.length; i++) {
