@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
-const app = express()
+const app = express();
 const http = require('http');
 
 app.use(express.static('public'));
@@ -27,23 +27,49 @@ var currentDates = [];
 var songs = [];
 var results = [];
 
+var errorMessage = null;
+
+function checkUser(callback) {
+	http.get('http://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ username +
+	'&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+		let data = '';
+		resp.on('data', (chunk) => {
+			data += chunk;
+		});
+		resp.on('end', () => {
+			if (resp.statusCode == 500) {
+				console.log("Invalid Username");
+				errorMessage = "Sorry, this username is invalid.";
+				outputResults();
+			} else {
+				callback();
+			}
+	 	}); 
+	}).on("error", (err) => {
+		console.log("Error: " + err.message);
+		errorMessage = "Error: " + err.message;
+	});
+}
+
 function getPost() {
   app.post('/', function (req, res) {
-	  responder = res;
-	  username = req.body.username;
-	  startDateText = req.body.startDate
-	  startDate = dateToTS(startDateText);
-	  endDateText = req.body.endDate
-	  endDate = dateToTS(endDateText);
-	  previousLimit = req.body.previousLimit;
-	  currentLimit = req.body.currentLimit;
-	  calculateDates();
-	})
+		responder = res;
+		username = req.body.username;
+		startDateText = req.body.startDate;
+		startDate = dateToTS(startDateText);
+		endDateText = req.body.endDate;
+		endDate = dateToTS(endDateText);
+		previousLimit = req.body.previousLimit;
+		currentLimit = req.body.currentLimit;
+		checkUser( function() {
+			calculateDates();
+  		});
+	});
 }
 
 getPost();
 
-app.listen(process.env.PORT);
+app.listen(3000);//process.env.PORT);
 
 function addSong(songs, newSong, previousFlag) {
 	for (var i = 0; i < songs.length; i++) {
@@ -79,7 +105,7 @@ function getDates(startDate, endDate, callback) {
 	    data += chunk;
 	  });
 	  resp.on('end', () => {
-	  	let list = JSON.parse(data).weeklychartlist;
+		  let list = JSON.parse(data).weeklychartlist;
 	  	for (var i = 0; i < list.chart.length; i++) {
 	  		if ((list.chart[i].from > startDate) && (list.chart[i].to < endDate)) {
 	  			dates.push(new Array(list.chart[i].from, list.chart[i].to));
@@ -89,6 +115,7 @@ function getDates(startDate, endDate, callback) {
 	  }); 
 	}).on("error", (err) => {
 	  console.log("Error: " + err.message);
+	  errorMessage = "Error: " + err.message;
 	});
 }
 
@@ -137,6 +164,7 @@ function getSongs(dateNumber, previousFlag, callback) {
 	  }); 
 	}).on("error", (err) => {
 	  console.log("Error: " + err.message);
+	  errorMessage = "Error: " + err.message;
 	});
 }
 
@@ -173,12 +201,13 @@ function outputResults() {
 	}
 	results = sortBySongPreviousTotal(results);
 	var resultText = [];
-	var info = "Parameters: " + username + ", " + startDateText + ", " + endDateText + ", " + previousLimit + ", " + currentLimit;
+	var info = "Parameters given: " + username + ", " + startDateText + ", " + endDateText + ", " + previousLimit + ", " + currentLimit;
 	console.log(info);
 	console.log("Results: " + results.length);
 	for (var i = 0; i < results.length; i++) {	
 		resultText[i] = new Array(results[i].name, results[i].artist['#text'], results[i].previousTotal, results[i].currentTotal);
 	}
-	responder.render('index', {info: info, results: resultText, error: null});
+	responder.render('index', {info: info, results: resultText, error: errorMessage});
+	errorMessage = null;
 	getPost();
 }

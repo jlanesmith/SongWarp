@@ -72,3 +72,6 @@ fieldset {
 p {
   color: #E64A19;
 }
+h2.error {
+  color: red;
+}

@@ -21,22 +21,22 @@
           <input name="currentLimit" type="text" class="ghost-input" placeholder="Enter a current limit (The maximum for how many times you listened to this song since the time period)" required>
           <input type="submit" class="ghost-button" value="Get Songs">
         </form>
-        	<% if(error !== null){ %>
-            	<h2><%= error %></h2>
-          	<% } else if (results !== null){ %>
-            	<% if(results.length == 0){ %>
-            		<h2><%= "There are no results with the parameters given. Sorry!" %></h2>
-          		<% } else { %>
-					<h1><%= "Results:" %></h1>
-					<h2><%= info %></h2>
-	        		<% for (var i = 0; i < results.length; i++) {%>
-	           			<h3> <%= (i+1) + ". \"" + results[i][0] + "\" by " + results[i][1] %></h3>
-	           			<h4> <%= "Times listened during time period: " + results[i][2] + ", Times listened after time period: " + results[i][3] %></h4>
-	        		<% } %>
- 		  		<% } %>
- 		  	<% } else if (info !== null){ %>
- 		  		<h1><%= info %></h1>
- 		  	<% } %>
+        <% if (info !== null) { %>
+          <h2> <%= info %></h1>
+        <% } %>
+        <% if(error !== null){ %>
+            <h2 class="error"><%= error %></h2>
+        <% } else if (results !== null){ %>
+          <% if(results.length == 0){ %>
+            <h2><%= "There are no results with the parameters given. Sorry!" %></h2>
+          <% } else { %>
+            <h1><%= "Results:" %></h1>
+            <% for (var i = 0; i < results.length; i++) {%>
+                <h3> <%= (i+1) + ". \"" + results[i][0] + "\" by " + results[i][1] %></h3>
+                <h4> <%= "Times listened during time period: " + results[i][2] + ", Times listened after time period: " + results[i][3] %></h4>
+            <% } %>
+          <% } %>
+        <% } %>
       </fieldset>
     </div>
   </body>
