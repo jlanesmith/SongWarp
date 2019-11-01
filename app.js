@@ -69,7 +69,7 @@ function getPost() {
 
 getPost();
 
-app.listen(3000);//process.env.PORT);
+app.listen(process.env.PORT);
 
 function addSong(songs, newSong, previousFlag) {
 	for (var i = 0; i < songs.length; i++) {
