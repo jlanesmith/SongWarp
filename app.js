@@ -52,7 +52,7 @@ function checkUser(callback) {
 			data += chunk;
 		});
 		resp.on('end', () => {
-			if (resp.statusCode == 500) {
+			if (resp.statusCode != 200) {
 				console.log("Invalid Username");
 				errorMessage = "Sorry, this username is invalid.";
 				outputResults();
