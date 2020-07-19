@@ -70,7 +70,7 @@ export default function Results(props) {
         }
        }); 
     }).on("error", (err) => {
-      setErrorMessage("Error: " + err.message);
+      setErrorMessage("Error while finding user " + username + ": " + err);
     });
   }
   
