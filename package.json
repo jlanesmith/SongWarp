@@ -1,28 +1,40 @@
 {
-  "name": "songrediscoverer",
+  "name": "songback",
   "version": "1.0.0",
-  "description": "Welcome to SongRediscoverer! This app uses the Last.fm API to find songs that you listened to at least a given number of times during a given time period, but have listened to no more than a given number of times since that time period to the present. This allows you to rediscover songs that you haven't listened to in a while!",
+  "description": "Welcome to SongBack! This app uses the Last.fm API to find songs that you listened to at least 'x' times during a given time period, but have listened to no more than 'y' times since that time period to the present. This allows you to rediscover songs that you haven't listened to in a while!",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "host": "next build; next start"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jlanesmith/SongRediscoverer.git"
+    "url": "git+https://github.com/jlanesmith/SongBack.git"
   },
-  "author": "",
+  "author": "Jonathan Lane-Smith",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/jlanesmith/SongRediscoverer/issues"
+    "url": "https://github.com/jlanesmith/SongBack/issues"
   },
-  "homepage": "https://github.com/jlanesmith/SongRediscoverer#readme",
+  "homepage": "https://github.com/jlanesmith/SongBack#readme",
   "dependencies": {
+    "@date-io/date-fns": "1.3.11",
+    "@material-ui/core": "^4.11.0",
+    "@material-ui/lab": "^4.0.0-alpha.56",
+    "@material-ui/pickers": "^3.2.10",
+    "@zeit/next-css": "^1.0.1",
     "body-parser": "^1.18.3",
+    "date-fns": "2.11.1",
     "dateformat": "^3.0.3",
     "ejs": "^2.6.1",
     "express": "^4.16.3",
     "fast-csv": "^3.4.0",
+    "next": "9.3.5",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
     "request": "^2.88.0"
   }
 }
