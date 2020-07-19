@@ -55,7 +55,7 @@ export default function Results(props) {
 
   // Check to see if the username is valid. If it is, continue with calculations and if not, output results with an error message
   function checkUser() {
-    http.get('http://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ username +
+    http.get('https://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ username +
     '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
       let data = '';
       resp.on('data', (chunk) => {
@@ -70,7 +70,7 @@ export default function Results(props) {
         }
        }); 
     }).on("error", (err) => {
-      setErrorMessage("Error while finding user " + username + ": " + err);
+      setErrorMessage("Error while finding user " + username + ": " + err.message);
     });
   }
   
@@ -108,7 +108,7 @@ export default function Results(props) {
     var dates = []; // This array will be sent into the callback and be assigned to either previousDates or currentDates
   
     // Gets list of available charts for this user, expressed as date ranges
-    http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklychartlist&user='+ username +
+    http.get('https://ws.audioscrobbler.com/2.0/?method=user.getweeklychartlist&user='+ username +
       '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
         let data = '';
         resp.on('data', (chunk) => {
@@ -163,7 +163,7 @@ export default function Results(props) {
       end = currentDates[dateNumber][1];
     }
   
-    http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
+    http.get('https://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
       '&from=' + start + '&to=' + end + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
       let data = '';
       resp.on('data', (chunk) => {
