@@ -53,26 +53,6 @@ export default function Results(props) {
   var results = []; // Array of songs that pass the parameters and will be included in the output
   var startTimeCalculations;
 
-  // Check to see if the username is valid. If it is, continue with calculations and if not, output results with an error message
-  function checkUser() {
-    http.get('https://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ username +
-    '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
-      let data = '';
-      resp.on('data', (chunk) => {
-        data += chunk;
-      });
-      resp.on('end', () => {
-        if (resp.statusCode != 200) {
-          setErrorMessage("Sorry, this username is invalid.");
-          outputResults();
-        } else {
-          calculateDates();
-        }
-       }); 
-    }).on("error", (err) => {
-      setErrorMessage("Error while finding user " + username + ": " + err.message);
-    });
-  }
   
   // Takes a song and adds it to the songs array
   function addSong(newSong, previousFlag) {
@@ -258,7 +238,7 @@ export default function Results(props) {
   React.useEffect(() => {
     startDate = dateToTS(startDateText);
     endDate = dateToTS(endDateText);
-    checkUser();
+    calculateDates();
   },[])
 
   return (

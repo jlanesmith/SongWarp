@@ -4,29 +4,64 @@ import Results from './results.jsx';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Grid from '@material-ui/core/Grid'
+import Alert from '@material-ui/lab/Alert';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import CheckIcon from '@material-ui/icons/CheckCircleOutlineRounded';
+import ExIcon from '@material-ui/icons/HighlightOffRounded';
 import DateFnsUtils from '@date-io/date-fns';
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from '@material-ui/pickers';
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 
 export default function Home() {
-
-  const [isGoTime, setIsGoTime] = React.useState(false);
 
   const [username, setUsername] = React.useState("jlanesmith");
   const [startDate, setStartDate] = React.useState(new Date('2020/05/25'));
   const [endDate, setEndDate] = React.useState(new Date('2020/07/01'));
   const [previousLimit, setPreviousLimit] = React.useState(2);
   const [currentLimit, setCurrentLimit] = React.useState(1);
+  const [isGoTime, setIsGoTime] = React.useState(false);
+  const [userErrorMessage, setUserErrorMessage] = React.useState("");
+  const [checkUserState, setCheckUserState] = React.useState(0);   // 0=nothing, 1==loading, 2=success, 3=error
+  const [checkedUsername, setCheckedUsername] = React.useState(username);
+
+  const http = require('http');
+
+  React.useEffect(() => {
+    const interval = setInterval((checkUserState) => {
+      if (username !== checkedUsername) {
+        setCheckedUsername(username)
+        setCheckUserState(1);
+        checkUser(username);
+      }
+    }, 250, checkUserState);
+    return () => clearInterval(interval);
+  }, [checkUserState]);
+
+
+  function checkUser(newUsername) {
+    http.get('https://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ newUsername +
+    '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+      let data = '';
+      resp.on('data', (chunk) => {
+        data += chunk;
+      });
+      resp.on('end', () => {
+        if (resp.statusCode == 200) {
+          setCheckUserState(2);
+        } else {
+          setCheckUserState(3);
+        }
+      }); 
+    }).on("error", (err) => {
+      setUserErrorMessage("Error while finding user " + newUsername + ": " + err.message);
+    });
+  }
 
   return (
-    <div className="container">
+    <div className="container">  
       <main>
         <h1 className="title">
           Welcome to SongBack!
         </h1>
-
         <p className="description">
           This app finds songs that you listened to at least "x" times during a given time period, 
           but have listened to no more than "y" times since that time period to the present.
@@ -36,11 +71,18 @@ export default function Home() {
             <p>Enter your Last.fm username</p>
             <TextField 
               value={username} 
-              onChange={(event) => {setUsername(event.target.value)}} 
-              className="input"
+              onChange={(event) => {
+                setUsername(event.target.value);
+                setCheckUserState(1);
+              }} 
+              className="usernameInput"
               label="Username"
               variant="outlined"
             />
+            {checkUserState === 1 && <CircularProgress className="circularProgress"/>}
+            {checkUserState === 2 && <CheckIcon className="checkIcon"/>}
+            {checkUserState === 3 && <ExIcon className="closeIcon"/>}
+            {userErrorMessage.length > 0 && <Alert className="errorMessage" severity="error">{userErrorMessage}</Alert>}
           </Grid>
           <Grid item xs={12} md={6} className="inputContainer">
             <p>Enter a start date for the time period</p>

@@ -98,6 +98,11 @@ body {
     max-width: 800px;
   }
 
+  .usernameInput {
+    width: calc(100% - 70px);
+    float: left;
+  }
+
   .inputContainer {
     padding-bottom: 30px;
     text-align: center;
@@ -120,6 +125,22 @@ body {
   .resultContainer {
     width: 75%;
     text-align: center;
+  }
+
+  .circularProgress {
+    margin-top: 9px;
+  }
+
+  .checkIcon {
+    color: green;
+    font-size: 3rem !important;
+    margin-top: 3px;
+  }
+
+  .closeIcon {
+    color: red;
+    font-size: 3rem !important;
+    margin-top: 3px;
   }
 
   .errorMessage {
