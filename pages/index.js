@@ -13,29 +13,29 @@ import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/picker
 
 export default function Home() {
 
-  const [username, setUsername] = React.useState("jlanesmith");
+  const [username, setUsername] = React.useState("");
   const [startDate, setStartDate] = React.useState(new Date('2020/05/25'));
   const [endDate, setEndDate] = React.useState(new Date('2020/07/01'));
   const [previousLimit, setPreviousLimit] = React.useState(2);
   const [currentLimit, setCurrentLimit] = React.useState(1);
+
   const [isGoTime, setIsGoTime] = React.useState(false);
   const [userErrorMessage, setUserErrorMessage] = React.useState("");
   const [checkUserState, setCheckUserState] = React.useState(0);   // 0=nothing, 1==loading, 2=success, 3=error
-  const [checkedUsername, setCheckedUsername] = React.useState(username);
+  const [timeLastUsername, setTimeLastUsername] = React.useState(0); // Time since username was changed last
 
   const http = require('http');
 
   React.useEffect(() => {
-    const interval = setInterval((checkUserState) => {
-      if (username !== checkedUsername) {
-        setCheckedUsername(username)
+    const interval = setInterval(() => {
+      if (Date.now() - timeLastUsername > 500 && checkUserState == 1) {
+        setTimeLastUsername(Date.now())
         setCheckUserState(1);
         checkUser(username);
       }
-    }, 250, checkUserState);
+    }, 250);
     return () => clearInterval(interval);
-  }, [checkUserState]);
-
+  }, [username, checkUserState]);
 
   function checkUser(newUsername) {
     http.get('https://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ newUsername +
@@ -73,6 +73,7 @@ export default function Home() {
               value={username} 
               onChange={(event) => {
                 setUsername(event.target.value);
+                setTimeLastUsername(Date.now())
                 setCheckUserState(1);
               }} 
               className="usernameInput"
