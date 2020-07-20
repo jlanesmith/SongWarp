@@ -22,20 +22,22 @@ export default function Home() {
   const [isGoTime, setIsGoTime] = React.useState(false);
   const [userErrorMessage, setUserErrorMessage] = React.useState("");
   const [checkUserState, setCheckUserState] = React.useState(0);   // 0=nothing, 1==loading, 2=success, 3=error
+  const [lastCheckedUsername, setLastCheckedUsername] = React.useState(""); // Last username that was checked
   const [timeLastUsername, setTimeLastUsername] = React.useState(0); // Time since username was changed last
 
   const http = require('http');
 
   React.useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timeLastUsername > 500 && checkUserState == 1) {
+      if (Date.now() - timeLastUsername > 500 && (checkUserState == 1 || lastCheckedUsername !== username)) {
         setTimeLastUsername(Date.now())
+        setLastCheckedUsername(username)
         setCheckUserState(1);
         checkUser(username);
       }
-    }, 250);
+    }, 150);
     return () => clearInterval(interval);
-  }, [username, checkUserState]);
+  }, [username, lastCheckedUsername, checkUserState]);
 
   function checkUser(newUsername) {
     http.get('https://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ newUsername +
@@ -80,9 +82,11 @@ export default function Home() {
               label="Username"
               variant="outlined"
             />
-            {checkUserState === 1 && <CircularProgress className="circularProgress"/>}
-            {checkUserState === 2 && <CheckIcon className="checkIcon"/>}
-            {checkUserState === 3 && <ExIcon className="closeIcon"/>}
+            <div className={"iconContainer"}>
+              {checkUserState === 1 && <CircularProgress className="circularProgress"/>}
+              {checkUserState === 2 && <CheckIcon className="checkIcon"/>}
+              {checkUserState === 3 && <ExIcon className="closeIcon"/>}
+            </div>
             {userErrorMessage.length > 0 && <Alert className="errorMessage" severity="error">{userErrorMessage}</Alert>}
           </Grid>
           <Grid item xs={12} md={6} className="inputContainer">

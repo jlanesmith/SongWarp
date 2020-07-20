@@ -127,8 +127,13 @@ body {
     text-align: center;
   }
 
+  .iconContainer {
+    float: right;
+  }
+
   .circularProgress {
-    margin-top: 9px;
+    margin-top: 7px;
+    margin-right: 4px;
   }
 
   .checkIcon {
