@@ -42,7 +42,7 @@ export default function Home() {
 
   function checkUser(newUsername) {
     http.get('https://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ newUsername +
-    '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+    '&api_key=' + process.env.LASTFM_API_KEY + '&format=json', (resp) => {
       let data = '';
       resp.on('data', (chunk) => {
         data += chunk;

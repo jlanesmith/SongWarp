@@ -90,7 +90,7 @@ export default function Results(props) {
   
     // Gets list of available charts for this user, expressed as date ranges
     http.get('https://ws.audioscrobbler.com/2.0/?method=user.getweeklychartlist&user='+ username +
-      '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+      '&api_key=' + process.env.LASTFM_API_KEY + '&format=json', (resp) => {
         let data = '';
         resp.on('data', (chunk) => {
           data += chunk;
@@ -145,7 +145,7 @@ export default function Results(props) {
     }
   
     http.get('https://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
-      '&from=' + start + '&to=' + end + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
+      '&from=' + start + '&to=' + end + '&api_key=' + process.env.LASTFM_API_KEY + '&format=json', (resp) => {
       let data = '';
       resp.on('data', (chunk) => {
         data += chunk;
@@ -186,8 +186,8 @@ export default function Results(props) {
   // This is the main calculation function and shows the general path that the program goes through
   function calculateDates() {
     
-    getDates(startDate, endDate, function(previousDates1){
-      getDates(endDate, new Date(), function(currentDates1){
+    getDates(startDate, endDate, function(previousDates1) {
+      getDates(endDate, new Date(), function(currentDates1) {
         previousDates = previousDates1;
         currentDates = currentDates1;
         if (previousDates.length > 0) {
