@@ -14,13 +14,14 @@ import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/picker
 export default function Home() {
 
   const [username, setUsername] = React.useState("");
-  const [startDate, setStartDate] = React.useState(new Date('2020/05/25'));
-  const [endDate, setEndDate] = React.useState(new Date('2020/07/01'));
+  const [startDate, setStartDate] = React.useState(new Date('2020/06/25'));
+  const [endDate, setEndDate] = React.useState(new Date('2020/08/01'));
   const [previousLimit, setPreviousLimit] = React.useState(2);
   const [currentLimit, setCurrentLimit] = React.useState(1);
 
-  const [isGoTime, setIsGoTime] = React.useState(false);
+  const [isGoTime, setIsGoTime] = React.useState(0);
   const [userErrorMessage, setUserErrorMessage] = React.useState("");
+  const [invalidParametersMessage, setInvalidParametersMessage] = React.useState("")
   const [checkUserState, setCheckUserState] = React.useState(0);   // 0=nothing, 1==loading, 2=success, 3=error
   const [lastCheckedUsername, setLastCheckedUsername] = React.useState(""); // Last username that was checked
   const [timeLastUsername, setTimeLastUsername] = React.useState(0); // Time since username was changed last
@@ -56,6 +57,16 @@ export default function Home() {
     }).on("error", (err) => {
       setUserErrorMessage("Error while finding user " + newUsername + ": " + err.message);
     });
+  }
+
+  const clickGo = () => {
+    if (checkUserState === 2 && startDate !== null && endDate !== null && previousLimit !== "" && previousLimit >= 0 
+        && currentLimit !== "" &&  currentLimit >= 0) {
+      setInvalidParametersMessage("")
+      setIsGoTime(isGoTime + 1)
+    } else {
+      setInvalidParametersMessage("Invalid or empty parameters")
+    }
   }
 
   return (
@@ -138,16 +149,20 @@ export default function Home() {
             />
           </Grid>
         </Grid>
-        <Button className="button" onClick={() => setIsGoTime(true)} variant="contained" color="primary" size="large">
+        {invalidParametersMessage.length > 0 && 
+          <Alert className="errorMessage" severity="error">{invalidParametersMessage}</Alert>
+        }
+        <Button className="button" onClick={clickGo} variant="contained" color="primary" size="large">
           <p className="buttonText">Get songs</p>
         </Button>
-        {isGoTime &&
+        {isGoTime > 0 &&
           <Results 
             username={username} 
             startDateText={startDate} 
             endDateText={endDate} 
             previousLimit={previousLimit} 
             currentLimit={currentLimit}
+            runAgain={isGoTime}
           />
         }
       </main>

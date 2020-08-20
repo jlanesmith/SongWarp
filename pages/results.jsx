@@ -35,7 +35,8 @@ export default function Results(props) {
     startDateText,
     endDateText,
     previousLimit,
-    currentLimit
+    currentLimit,
+    runAgain
   } = props;
 
   const [progress, setProgress] = React.useState(0);
@@ -153,12 +154,14 @@ export default function Results(props) {
   
       // Get list of songs in the week
       var chart = JSON.parse(data).weeklytrackchart;
-      // Add each song to the big array of all the songs 
-        for (var i = 0; i < chart.track.length; i++) {
-          var song = chart.track[i];
-          song["previousTotal"] = 0;
-          song["currentTotal"] = 0;
-          addSong(song, isPrevious);
+      if (chart != undefined) {
+        // Add each song to the big array of all the songs 
+          for (var i = 0; i < chart.track.length; i++) {
+            var song = chart.track[i];
+            song["previousTotal"] = 0;
+            song["currentTotal"] = 0;
+            addSong(song, isPrevious);
+        }
       }
       
       // Determine whether to go to the next week, or whether this is the last week of the section
@@ -236,10 +239,15 @@ export default function Results(props) {
   }
 
   React.useEffect(() => {
+    setProgress(0);
+    setProgressMessage("Loading...");
+    setResultText([]);
+    setErrorMessage("");
+    setStartTimeState(0);
     startDate = dateToTS(startDateText);
     endDate = dateToTS(endDateText);
     calculateDates();
-  },[])
+  }, [runAgain])
 
   return (
     <div className="resultContainer">
@@ -247,13 +255,14 @@ export default function Results(props) {
         <Alert className="errorMessage" severity="error">{errorMessage}</Alert>
       ) : (
         <>
-          {resultText.length === 0 &&
+          {progress !== 100 &&
             <p className="progressMessage">{progressMessage}</p>
           }
           {startTimeState > 0 &&
             <LinearProgress className="linearProgress" variant="determinate"  value={progress} />
           }
-          {resultText.length > 0 &&
+          {progress === 100 &&
+            (resultText.length > 0 ?
             <TableContainer component={Paper}>
               <Table size="small">
                 <TableHead>
@@ -276,6 +285,9 @@ export default function Results(props) {
                 </TableBody>
               </Table>
             </TableContainer>
+            :
+            <p>No results found</p>
+            )
           }
         </>
       )}  
