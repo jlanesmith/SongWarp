@@ -73,7 +73,7 @@ export default function Home() {
     <div className="container">  
       <main>
         <h1 className="title">
-          Welcome to SongBack!
+          Welcome to SongWarp!
         </h1>
         <p className="description">
           This app finds songs that you listened to at least "x" times during a given time period, 

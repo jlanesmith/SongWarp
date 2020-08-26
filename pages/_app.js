@@ -5,7 +5,7 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <Head>
-        <title>SongBack</title>
+        <title>SongWarp</title>
         <link rel="shortcut icon" href="/favicon.ico"/>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>

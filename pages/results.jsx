@@ -1,5 +1,5 @@
 /*
-	This file contains the source code for SongBack (patent pending)
+	This file contains the source code for SongWarp (patent pending)
 
 	Author: Jonathan Lane-Smith
 
