@@ -1,3 +1,7 @@
+/*
+  This file contains the React code for the main webpage of SongWarp
+*/
+
 import 'date-fns';
 import React from 'react';
 import Results from './results.jsx';
@@ -19,27 +23,34 @@ export default function Home() {
   const [previousLimit, setPreviousLimit] = React.useState(2);
   const [currentLimit, setCurrentLimit] = React.useState(1);
 
-  const [isGoTime, setIsGoTime] = React.useState(0);
-  const [userErrorMessage, setUserErrorMessage] = React.useState("");
-  const [invalidParametersMessage, setInvalidParametersMessage] = React.useState("")
-  const [checkUserState, setCheckUserState] = React.useState(0);   // 0=nothing, 1==loading, 2=success, 3=error
+  const [goTime, setGoTime] = React.useState(0); // Increments by 1 whenever songs are calculated
+  // Error message if LastFM api fails while searching for user
+  const [userErrorMessage, setUserErrorMessage] = React.useState(""); 
+  // Eror message if invalid parameters
+  const [invalidParametersMessage, setInvalidParametersMessage] = React.useState("") 
+  // State of icon beside username text box: 0=nothing, 1==loading, 2=success, 3=error
+  const [checkUserState, setCheckUserState] = React.useState(0); 
   const [lastCheckedUsername, setLastCheckedUsername] = React.useState(""); // Last username that was checked
   const [timeLastUsername, setTimeLastUsername] = React.useState(0); // Time since username was changed last
 
   const http = require('http');
 
+  // This block of code waits until it has been 500ms since the username was changed last and either the icon
+  // is loading or the username does not equal the lastCheckedUsername (which would occur if the username was changed
+  // right as the username was being checked), and then checks to see whether the username exists in LastFM's database
   React.useEffect(() => {
     const interval = setInterval(() => {
       if (Date.now() - timeLastUsername > 500 && (checkUserState == 1 || lastCheckedUsername !== username)) {
-        setTimeLastUsername(Date.now())
-        setLastCheckedUsername(username)
-        setCheckUserState(1);
+        setTimeLastUsername(Date.now());
+        setLastCheckedUsername(username);
+        setCheckUserState(1); // Set icon to loading
         checkUser(username);
       }
-    }, 150);
+    }, 150); // Check every 150 ms (which means the user could be checked 650 ms after it was changed last)
     return () => clearInterval(interval);
   }, [username, lastCheckedUsername, checkUserState]);
 
+  // Check to see whether the username exists in LastFM's database
   function checkUser(newUsername) {
     http.get('https://ws.audioscrobbler.com/2.0/?method=user.getInfo&user='+ newUsername +
     '&api_key=' + process.env.LASTFM_API_KEY + '&format=json', (resp) => {
@@ -49,23 +60,25 @@ export default function Home() {
       });
       resp.on('end', () => {
         if (resp.statusCode == 200) {
-          setCheckUserState(2);
+          setCheckUserState(2); // Set icon to success
         } else {
-          setCheckUserState(3);
+          setCheckUserState(3); // Set icon to error
         }
-      }); 
+      });
     }).on("error", (err) => {
+      // If LastFM api fails while searching for user
       setUserErrorMessage("Error while finding user " + newUsername + ": " + err.message);
     });
   }
 
+  // This increments goTime, which will trigger results.jsx to calculate the list of songs
   const clickGo = () => {
     if (checkUserState === 2 && startDate !== null && endDate !== null && previousLimit !== "" && previousLimit >= 0 
-        && currentLimit !== "" &&  currentLimit >= 0) {
-      setInvalidParametersMessage("")
-      setIsGoTime(isGoTime + 1)
+        && currentLimit !== "" &&  currentLimit >= 0) { // If parameters are valid
+      setInvalidParametersMessage("");
+      setGoTime(goTime + 1);
     } else {
-      setInvalidParametersMessage("Invalid or empty parameters")
+      setInvalidParametersMessage("Invalid or empty parameters");
     }
   }
 
@@ -155,14 +168,14 @@ export default function Home() {
         <Button className="button" onClick={clickGo} variant="contained" color="primary" size="large">
           <p className="buttonText">Get songs</p>
         </Button>
-        {isGoTime > 0 &&
+        {goTime > 0 &&
           <Results 
             username={username} 
             startDateText={startDate} 
             endDateText={endDate} 
             previousLimit={previousLimit} 
             currentLimit={currentLimit}
-            runAgain={isGoTime}
+            runAgain={goTime}
           />
         }
       </main>
