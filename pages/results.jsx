@@ -260,7 +260,7 @@ export default function Results(props) {
 
 
   return (
-    <div className="resultContainer">
+    <div>
       {errorMessage.length > 0 ? (
         <Alert className="errorMessage" severity="error">{errorMessage}</Alert>
       ) : (

@@ -25,7 +25,7 @@ function addSong(newSong, dateNumber) {
 
 		// If the song already exists in the array, update the playcount
 		if ( (songs[i].name == newSong.name) && (songs[i].artist['#text'] == newSong.artist['#text']) ) {
-			songs[i].countArray[dateNumber] =songs[i].countArray[dateNumber-1] + parseInt(newSong.playcount, 10);
+			songs[i].countArray[dateNumber] =songs[i].countArray[dateNumber-1] + parseInt(newSong.playcount);
 			return;
 		}
 	}
