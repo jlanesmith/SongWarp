@@ -28,7 +28,7 @@ export default function GenerateCsv(props) {
 	let startDateNum = 622; // I found that my earliest dates that mattered started at about 622
   let dates = []; // 2D Array of start and end dates
    // Array of songs. Each song is an object with various members, including an array of the song's total
-   // cumulative scrobbles for each set of dates in the date array
+   // cumulative scrobbles
 	let songs = [];            
   // startTimeState as a non-state variable, so that it updates immediately and can be used for calculations
   let startTimeCalculations; 
@@ -39,7 +39,7 @@ export default function GenerateCsv(props) {
 
 			// If the song already exists in the array, update the playcount
 			if ( (songs[i].name == newSong.name) && (songs[i].artist['#text'] == newSong.artist['#text']) ) {
-				songs[i].countArray[dateNumber] =songs[i].countArray[dateNumber-1] + parseInt(newSong.playcount);
+				songs[i].countArray[dateNumber] = songs[i].countArray[dateNumber-1] + parseInt(newSong.playcount);
 				return;
 			}
 		}
@@ -162,7 +162,7 @@ export default function GenerateCsv(props) {
 				dateIndexToIgnore++;
 			else {		
 				let date = new Date(dates[i][0]*1000);	
-				makeCsvData[0][i+1-dateIndexToIgnore] = dateFormat(date, "mmmm dS, yyyy");
+				makeCsvData[0][i+1-dateIndexToIgnore] = dateFormat(date, "mmmm dS yyyy");
 			}
 		}
 
@@ -171,7 +171,7 @@ export default function GenerateCsv(props) {
 				songs[i].countArray.shift(); // Remove data for dates in which data doesn't exist
 			}
 			makeCsvData[i+1] = songs[i].countArray;
-			makeCsvData[i+1].unshift(songs[i].name); // The first column contains each of the songs' names
+			makeCsvData[i+1].unshift(songs[i].name.replace(/[,#]/g, "")); // The first column contains each of the songs' names
     }
     setCsvData(makeCsvData)
     setProgress(100); // Calculations are finished now
@@ -193,7 +193,6 @@ export default function GenerateCsv(props) {
       let row = rowArray.join(",");
       csvContent += row + "\r\n";
     });
-  
     // Call the csv download via anchor tag(link) so we can provide a name for the file
     let encodedUri = encodeURI(csvContent);
     let link = document.createElement("a");
