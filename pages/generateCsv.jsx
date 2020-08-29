@@ -14,7 +14,8 @@ export default function GenerateCsv(props) {
 
 	const {
     username,
-    runAgain
+    runAgain,
+    variant
   } = props;
   
   const [progress, setProgress] = React.useState(0); // Progress in calculations as a percentage, from 0 to 100
@@ -32,13 +33,20 @@ export default function GenerateCsv(props) {
 	let songs = [];            
   // startTimeState as a non-state variable, so that it updates immediately and can be used for calculations
   let startTimeCalculations; 
+  // Indicator of which Last.FM API endpoint to call
+  let variantString = "track"; // By default, get songs
+  if (variant === "Albums") {
+      variantString = "album"; // Get albums
+  } else if (variant === "Artists") {
+      variantString = "artist"; // Get artists
+  }
   
 	// Takes a song and adds it to the songs array
 	function addSong(newSong, dateNumber) {
 		for (let i = 0; i < songs.length; i++) {
 
 			// If the song already exists in the array, update the playcount
-			if ( (songs[i].name == newSong.name) && (songs[i].artist['#text'] == newSong.artist['#text']) ) {
+			if ( (songs[i].name === newSong.name) && (variantString === "artist" || songs[i].artist['#text'] === newSong.artist['#text']) ) {
 				songs[i].countArray[dateNumber] = songs[i].countArray[dateNumber-1] + parseInt(newSong.playcount);
 				return;
 			}
@@ -100,7 +108,7 @@ export default function GenerateCsv(props) {
 		start = dates[dateNumber][0];
 		end = dates[dateNumber][1];
 
-		http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklytrackchart&user='+ username +
+		http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweekly' + variantString + 'chart&user='+ username +
 			'&from=' + start + '&to=' + end + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
 			let data = '';
 			resp.on('data', (chunk) => {
@@ -109,12 +117,12 @@ export default function GenerateCsv(props) {
 			resp.on('end', () => {
 
 				// Get list of songs in the week
-				let chart = JSON.parse(data).weeklytrackchart;
+				let chart = JSON.parse(data)['weekly' + variantString + 'chart'];
 
-				// Add each song to the big array of all the songs 
+        // Add each song to the big array of all the songs 
 				if (chart !== undefined) {
-					for (let i = 0; i < chart.track.length; i++) {
-						let song = chart.track[i];
+					for (let i = 0; i < chart[variantString].length; i++) {
+						let song = chart[variantString][i];
 						song["countArray"] = [];
 						song.countArray[dateNumber] = parseInt(song.playcount, 10);
 						addSong(song, dateNumber);
@@ -145,7 +153,7 @@ export default function GenerateCsv(props) {
 
     let makeCsvData = [[]]
 		// The first row contains each of the dates
-		makeCsvData[0][0] = "Song";
+		makeCsvData[0][0] = variant;
 		let dateIndexToIgnore = 0; // How many dates to skip forward (if they don't have any data)
 		let dateHasData = false;
 

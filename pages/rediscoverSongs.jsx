@@ -19,10 +19,10 @@ export default function RediscoverSongs(props) {
     checkUserState
   } = props;
 
-  const [startDate, setStartDate] = React.useState(new Date('2020/06/25'));
-  const [endDate, setEndDate] = React.useState(new Date('2020/08/01'));
-  const [previousLimit, setPreviousLimit] = React.useState(2);
-  const [currentLimit, setCurrentLimit] = React.useState(1);
+  const [startDate, setStartDate] = React.useState(null);
+  const [endDate, setEndDate] = React.useState(null);
+  const [previousLimit, setPreviousLimit] = React.useState();
+  const [currentLimit, setCurrentLimit] = React.useState();
   const [goTime, setGoTime] = React.useState(0); // Increments by 1 whenever songs are calculated
   // Eror message if invalid parameters
   const [invalidParametersMessage, setInvalidParametersMessage] = React.useState("") 

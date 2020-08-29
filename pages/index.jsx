@@ -21,17 +21,9 @@ export default function Index() {
 
   const [username, setUsername] = React.useState("");
   const [tabValue, setTabValue] = React.useState(0);
-  const [startDate, setStartDate] = React.useState(new Date('2020/06/25'));
-  const [endDate, setEndDate] = React.useState(new Date('2020/08/01'));
-  const [previousLimit, setPreviousLimit] = React.useState(2);
-  const [currentLimit, setCurrentLimit] = React.useState(1);
 
-  const [goTime, setGoTime] = React.useState(0); // Increments by 1 whenever songs are calculated
-  const [downloadTime, setDonwloadTime] = React.useState(0); // Increments by 1 whenever CSVs are downloaded
   // Error message if LastFM api fails while searching for user
   const [userErrorMessage, setUserErrorMessage] = React.useState(""); 
-  // Eror message if invalid parameters
-  const [invalidParametersMessage, setInvalidParametersMessage] = React.useState("") 
   // State of icon beside username text box: 0=nothing, 1==loading, 2=success, 3=error
   const [checkUserState, setCheckUserState] = React.useState(0); 
   const [lastCheckedUsername, setLastCheckedUsername] = React.useState(""); // Last username that was checked
@@ -75,28 +67,17 @@ export default function Index() {
     });
   }
 
-  // This increments goTime, which will trigger results.jsx to calculate the list of songs
-  const clickGo = () => {
-    if (checkUserState === 2 && startDate !== null && endDate !== null && previousLimit !== "" && previousLimit >= 0 
-        && currentLimit !== "" &&  currentLimit >= 0) { // If parameters are valid
-      setInvalidParametersMessage("");
-      setGoTime(goTime + 1);
-    } else {
-      setInvalidParametersMessage("Invalid or empty parameters");
-    }
-  }
-
   return (
     <div className="container">  
       <main>
         <h1 className="title">
           Welcome to SongWarp!
         </h1>
-        <p className="description">
-          This app consists of two programs which can be used to give you greater insight into your musical taste and 
-          how it changes over time! 
-        </p>
         <div className="formContainer">
+          <p className="description">
+            This app consists of two programs which can be used to give you greater insight into your musical taste and 
+            how it changes over time! 
+          </p>
           <div className="inputContainer">
             <p>Enter your Last.fm username</p>
             <TextField 

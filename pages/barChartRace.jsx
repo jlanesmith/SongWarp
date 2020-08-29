@@ -5,6 +5,10 @@
 
 import Button from '@material-ui/core/Button';
 import Alert from '@material-ui/lab/Alert';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
 import GenerateCsv from './generateCsv.jsx';
 
 export default function BarChartRace(props) {
@@ -16,6 +20,7 @@ export default function BarChartRace(props) {
   
   const [goTime, setGoTime] = React.useState(0); // Increments by 1 whenever button is clicked
   const [invalidParameter, setInvalidParameter] = React.useState(false); // whether the parameter (username) is invalid
+  const [variant, setVariant] = React.useState("Songs");
 
   // This increments goTime, which will trigger generateCsv.jsx to create the csv file
   const clickGo = () => {
@@ -31,8 +36,22 @@ export default function BarChartRace(props) {
     <div>
       <p className="programDescription">
         This program generates a CSV file which, along with <a target="_blank" href="https://app.flourish.studio/register">Flourish</a>, can generate
-        a bar chart race to show your #1 most scrobbled song over time.
+        a bar chart race to show your top songs/albums/artists over time.
       </p>
+      <div>
+        <FormControl variant="outlined" className="selectContainer">
+          <InputLabel>Variant</InputLabel>
+          <Select
+            label="Variant"
+            value={variant}
+            onChange={event => setVariant(event.target.value)}
+          >
+            <MenuItem value={"Songs"}>Songs</MenuItem>
+            <MenuItem value={"Albums"}>Albums</MenuItem>
+            <MenuItem value={"Artists"}>Artists</MenuItem>
+          </Select>
+        </FormControl>
+      </div>
       {invalidParameter && 
         <Alert className="errorMessage" severity="error">Invalid username</Alert>
       }
@@ -43,6 +62,7 @@ export default function BarChartRace(props) {
         <GenerateCsv
           username={username}
           runAgain={goTime}
+          variant={variant}
         />
       }
     </div>
