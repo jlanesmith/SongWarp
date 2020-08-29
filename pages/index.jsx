@@ -7,18 +7,17 @@ import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import Results from './results.jsx';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import Grid from '@material-ui/core/Grid'
 import Alert from '@material-ui/lab/Alert';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CheckIcon from '@material-ui/icons/CheckCircleOutlineRounded';
 import ExIcon from '@material-ui/icons/HighlightOffRounded';
-import DateFnsUtils from '@date-io/date-fns';
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
+import RediscoverSongs from './rediscoverSongs.jsx';
+import BarChartRace from './barChartRace.jsx';
 
-export default function Home() {
+
+export default function Index() {
 
   const [username, setUsername] = React.useState("");
   const [tabValue, setTabValue] = React.useState(0);
@@ -28,6 +27,7 @@ export default function Home() {
   const [currentLimit, setCurrentLimit] = React.useState(1);
 
   const [goTime, setGoTime] = React.useState(0); // Increments by 1 whenever songs are calculated
+  const [downloadTime, setDonwloadTime] = React.useState(0); // Increments by 1 whenever CSVs are downloaded
   // Error message if LastFM api fails while searching for user
   const [userErrorMessage, setUserErrorMessage] = React.useState(""); 
   // Eror message if invalid parameters
@@ -133,87 +133,10 @@ export default function Home() {
             </Tabs>
           </AppBar>
           <div hidden={tabValue !== 0}>
-            <p className="programDescription">
-              This program finds songs that you listened to at least "x" times during a given time period, 
-              but listened to no more than "y" times since that time period to the present.
-            </p>
-            <Grid container>
-              <Grid item xs={12} md={6} className="inputContainer">
-                <p>Enter a start date for the time period</p>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <KeyboardDatePicker
-                    variant="inline"
-                    format="yyyy/MM/dd"
-                    margin="normal"
-                    label="Start Date"
-                    value={startDate}
-                    onChange={(newDate) => setStartDate(newDate)}
-                  />
-                </MuiPickersUtilsProvider>
-              </Grid>
-              <Grid item xs={12} md={6} className="inputContainer">
-                <p>Enter an end date for the time period</p>
-                <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                  <KeyboardDatePicker
-                    variant="inline"
-                    format="yyyy/MM/dd"
-                    margin="normal"
-                    label="End Date"
-                    value={endDate}
-                    onChange={(newDate) => setEndDate(newDate)}
-                  />
-                </MuiPickersUtilsProvider>
-              </Grid>
-            </Grid>
-            <div className="inputContainer">
-              <p>Enter a previous limit (The minimum for how many times you listened to this song during the time period)</p>
-              <TextField 
-                value={previousLimit} 
-                onChange={(event) => {setPreviousLimit(event.target.value)}} 
-                className="input" 
-                label="Previous limit" 
-                variant="outlined"
-                type="number"
-              />
-            </div>
-            <div className="inputContainer">
-              <p>Enter a current limit (The maximum for how many times you listened to this song since the time period)</p>          
-              <TextField 
-                value={currentLimit} 
-                onChange={(event) => {setCurrentLimit(event.target.value)}} 
-                className="input" 
-                label="Current limit" 
-                variant="outlined"
-                type="number"
-              />
-            </div>
-            <div className="buttonContainer">
-              {invalidParametersMessage.length > 0 && 
-                <Alert className="errorMessage" severity="error">{invalidParametersMessage}</Alert>
-              }
-              <Button className="button" onClick={clickGo} variant="contained" color="primary" size="large">
-                <p className="buttonText">Get songs</p>
-              </Button>
-              {goTime > 0 &&
-                <Results 
-                  username={username} 
-                  startDateText={startDate} 
-                  endDateText={endDate} 
-                  previousLimit={previousLimit} 
-                  currentLimit={currentLimit}
-                  runAgain={goTime}
-                />
-              }
-            </div>
+            <RediscoverSongs username={username} checkUserState={checkUserState} />
           </div>
           <div hidden={tabValue !== 1}>
-            <p className="programDescription">
-              This program generates a CSV file which, along with <a target="_blank" href="https://app.flourish.studio/register">Flourish</a>, can generate
-              a bar chart race to show your #1 most scrobbled song over time.
-            </p>
-            <Button className="button" onClick={clickGo} variant="contained" color="primary" size="large">
-              <p className="buttonText">Download CSV</p>
-            </Button>
+            <BarChartRace username={username} checkUserState={checkUserState} />
           </div>
         </div> 
       </main>

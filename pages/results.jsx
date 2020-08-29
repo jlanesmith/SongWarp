@@ -1,5 +1,5 @@
 /*
-	This file contains the code to calculate the list of songs, and display them in a table
+	This file contains the code to calculate the list of songs, and display them in a table.
 
 	Brief overview: LastFM data is retrieved in packets of a week and is contained in a large array named `songs`.
 	Brief description of steps involved:
@@ -48,18 +48,18 @@ export default function Results(props) {
   // Time when calculations begin, in order to determine estimated time left. 
   const [startTimeState, setStartTimeState] = React.useState(0); 
 
-  var startDate; // Earliest date, to indicate the beginning of the "previous" section
-  var endDate; // Date to indicate the the end of the "previous" section and beginning of the "current" section
+  let startDate; // Earliest date, to indicate the beginning of the "previous" section
+  let endDate; // Date to indicate the the end of the "previous" section and beginning of the "current" section
   // 2D array that contains the start date and end date for each week included in the "previous" section
-  var previousDates = []; 
+  let previousDates = []; 
   // 2D array that contains the start date and end date for each week included in the "current" section
-  var currentDates = []; 
+  let currentDates = []; 
   // Array of all songs. Each song is an object containing an artist, name, playcount, url, and also a "previousTotal"
   // and "currentTotal"
-  var songs = []; 
-  var results = []; // Array of songs that satisfy the requirements and will be included in the output
+  let songs = []; 
+  let results = []; // Array of songs that satisfy the requirements and will be included in the output
   // startTimeState as a non-state variable, so that it updates immediately and can be used for calculations
-  var startTimeCalculations; 
+  let startTimeCalculations; 
 
   
   // Takes a song and adds it to the songs array
