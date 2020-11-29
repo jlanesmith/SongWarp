@@ -59,7 +59,7 @@ export default function GenerateCsv(props) {
 	function getDates(callback) {
 
 		// Gets list of available charts for this user, expressed as date ranges
-		http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweeklychartlist&user='+ username +
+		http.get('https://ws.audioscrobbler.com/2.0/?method=user.getweeklychartlist&user='+ username +
 			'&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
 			let data = '';
 			resp.on('data', (chunk) => {
@@ -108,7 +108,7 @@ export default function GenerateCsv(props) {
 		start = dates[dateNumber][0];
 		end = dates[dateNumber][1];
 
-		http.get('http://ws.audioscrobbler.com/2.0/?method=user.getweekly' + variantString + 'chart&user='+ username +
+		http.get('https://ws.audioscrobbler.com/2.0/?method=user.getweekly' + variantString + 'chart&user='+ username +
 			'&from=' + start + '&to=' + end + '&api_key=67d2877611ab7f461bda654cb05b53ae&format=json', (resp) => {
 			let data = '';
 			resp.on('data', (chunk) => {
